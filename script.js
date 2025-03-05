@@ -99,10 +99,12 @@ const linhas = 6
 const colunas = 5
 const blocoWidth = 65
 const blocoHeight = 20
+let pontuacao = 0
+let gameOver = false
 
 for(let i = 0; i < linhas; i++){
     for(let j = 0; j < colunas; j++){
-        blocos.push(new Bloco(j * (blocoWidth + 10) + 17, i * (blocoHeight + 10) + 10, blocoWidth, blocoHeight))
+        blocos.push(new Bloco(j * (blocoWidth + 10) + 17, i * (blocoHeight + 10) + 40, blocoWidth, blocoHeight))
     }
 }
 
@@ -113,6 +115,42 @@ function interacaoBolaERaquete(){
             bola.velocidadey = -bola.velocidadey
         }
 }
+
+function interacaoBolaEBlocos(){
+    for(let i = 0; i < blocos.length; i++) {
+        const bloco = blocos[i]
+        if(bola.posy <= bloco.posy + bloco.height && 
+            bola.posy + bola.raio * 2 >= bloco.posy && 
+            bola.posx + bola.raio * 2 >= bloco.posx && 
+            bola.posx <= bloco.posx + bloco.width){
+                bola.velocidadey = -bola.velocidadey
+                blocos.splice(i, 1)
+                pontuacao += 1
+                break
+            }
+    }
+}
+
+function contadorPontuacao(){
+    context.fillStyle = 'white'
+    context.font = '20px Tahoma'
+    context.fillText(`Pontuação: ${pontuacao}`, 10, 20)
+}
+
+function houveColisao(){
+    context.fillStyle = 'white'
+    context.fillRect((canvas.width/2)-100, (canvas.height/2)-50, 200, 100)
+    context.fillStyle = "black"
+    context.font = "25px Arial"
+    context.fillText("Game Over", (canvas.width/2)-65, (canvas.height/2)+5)
+    gameOver = true
+}
+
+document.addEventListener("click", (e) => {
+    if (gameOver) {
+        location.reload()
+    } 
+})
 
 document.addEventListener("keydown", (e) => {
     if(e.key === "ArrowRight"){
@@ -133,6 +171,13 @@ function loop() {
     bola.desenhar(context, "white")
     bola.mover()    
     interacaoBolaERaquete()
+    interacaoBolaEBlocos()
+    contadorPontuacao()
+
+    if(bola.posy + bola.raio > canvas.height) {
+        houveColisao()
+    }
+
     requestAnimationFrame(loop)
 }
 
