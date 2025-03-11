@@ -92,7 +92,7 @@ class Bloco extends Entidade {
     }
 }
 
-const raquete = new Raquete(canvas.width/2 - 40, canvas.height - 20, 75, 10)
+const raquete = new Raquete(canvas.width/2 - 45, canvas.height - 20, 80, 10)
 const bola = new Bola(canvas.width/2 - 13, canvas.height - 50, 10)
 const blocos = []
 const linhas = 6
@@ -101,6 +101,7 @@ const blocoWidth = 65
 const blocoHeight = 20
 let pontuacao = 0
 let gameOver = false
+let gameComplete = false
 
 for(let i = 0; i < linhas; i++){
     for(let j = 0; j < colunas; j++){
@@ -134,7 +135,7 @@ function interacaoBolaEBlocos(){
 function contadorPontuacao(){
     context.fillStyle = 'white'
     context.font = '20px Tahoma'
-    context.fillText(`Pontuação: ${pontuacao}`, 10, 20)
+    context.fillText(`Pontos: ${pontuacao}`, 15, 25)
 }
 
 function houveColisao(){
@@ -142,14 +143,32 @@ function houveColisao(){
     context.fillRect((canvas.width/2)-100, (canvas.height/2)-50, 200, 100)
     context.fillStyle = "black"
     context.font = "25px Arial"
-    context.fillText("Game Over", (canvas.width/2)-65, (canvas.height/2)+5)
+    context.fillText("Game Over", (canvas.width/2)-65, (canvas.height/2)+8)
     gameOver = true
 }
 
+function gameCompleted(){
+    context.fillStyle = 'white'
+    context.fillRect((canvas.width/2)-100, (canvas.height/2)-50, 200, 100)
+    context.fillStyle = "black"
+    context.font = "25px Arial"
+    context.fillText("Você venceu.", (canvas.width/2)-72, (canvas.height/2)-3)
+    context.fillText("Parábens!", (canvas.width/2)-70, (canvas.height/2)+23)
+    gameComplete = true
+}
+
 document.addEventListener("click", (e) => {
-    if (gameOver) {
+    if (gameOver || gameComplete) {
         location.reload()
     } 
+})
+
+document.addEventListener("keydown", (e) => {
+    if (gameOver || gameComplete) {
+        if(e.code === "Space" || e.key === "Escape") {
+            location.reload()
+        }
+    }
 })
 
 document.addEventListener("keydown", (e) => {
@@ -176,6 +195,12 @@ function loop() {
 
     if(bola.posy + bola.raio > canvas.height) {
         houveColisao()
+    }
+
+    if(blocos.length === 0) {
+        gameCompleted()
+        bola.posx = -500
+        bola.posy = -500
     }
 
     requestAnimationFrame(loop)
